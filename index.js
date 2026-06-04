@@ -1,3 +1,18 @@
+// Importamos Firebase para inicializar la app en el navegador.
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getdatabase } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+
+const firebaseConfig = {
+  databaseURL: "https://leads-tracker-app-50632-default-rtdb.firebaseio.com/";  //este link sale de firebase realtime database
+};
+
+const app = initializeApp(firebaseConfig);
+const databaseURL = initializeApp(app);
+
+
+//De aqui para abajo era inicial, lo de arriba viene de Firebase
+
 let myLeads = [];
 let oldLeads = [];
 const inputEl = document.getElementById("input-el"); //llamamos al input de hmtl
@@ -5,7 +20,7 @@ const inputBtn = document.getElementById("input-btn"); // llamando al boton de H
 const ulEl = document.getElementById("ul-el ");
 const leadsFromLocalStorage = JSON.parse(localStorage.getItem("myleads")); //tomamos los datos de myleads dentro de localstorage
 const deletenBtn = document.getElementById("delete-btn");
-const tabbtn = document.getElementById("tab-btn");
+const tabBtn = document.getElementById("tab-btn");
 
 //if revisa si leads.. es tru o falsy para guardar en localstorage y correr la otra funcion
 if (leadsFromLocalStorage) {
@@ -14,7 +29,7 @@ if (leadsFromLocalStorage) {
 }
 
 tabBtn.addEventListener("click", function () {
-  chrome.tabs.query({ active: true, currentWindow: true }, function () {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     console.log(tabs);
 
     //este de aqui abajo es para guardar al momento de press el boton
