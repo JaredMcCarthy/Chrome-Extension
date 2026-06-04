@@ -5,6 +5,11 @@ body {
   min-width: 400px;
 }
 
+label {
+  color: #5f9341;
+  font-weight: 900;
+}
+
 /*
 Este es el espacio que se uso para disenñar el boton y donde
 el ususarioo ingresa
