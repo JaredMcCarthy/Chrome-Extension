@@ -1,43 +1,27 @@
 // Importamos Firebase para inicializar la app en el navegador.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getdatabase } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
-
+import {
+  getDatabase,
+  ref, //estos 3 son para enviar la data al firebase con push y ref
+  push,
+  onValue,
+  remove,
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
 const firebaseConfig = {
-  databaseURL: "https://leads-tracker-app-50632-default-rtdb.firebaseio.com/";  //este link sale de firebase realtime database
+  databaseURL: "https://leads-tracker-app-50632-default-rtdb.firebaseio.com/", // este link sale de Firebase Realtime Database
 };
 
 const app = initializeApp(firebaseConfig);
-const databaseURL = initializeApp(app);
-
+const database = getDatabase(app);
+const referenceInDB = ref(database, "leads"); //que este se crear para psh info al firebase
 
 //De aqui para abajo era inicial, lo de arriba viene de Firebase
 
-let myLeads = [];
-let oldLeads = [];
 const inputEl = document.getElementById("input-el"); //llamamos al input de hmtl
 const inputBtn = document.getElementById("input-btn"); // llamando al boton de HTML
 const ulEl = document.getElementById("ul-el ");
-const leadsFromLocalStorage = JSON.parse(localStorage.getItem("myleads")); //tomamos los datos de myleads dentro de localstorage
 const deletenBtn = document.getElementById("delete-btn");
-const tabBtn = document.getElementById("tab-btn");
-
-//if revisa si leads.. es tru o falsy para guardar en localstorage y correr la otra funcion
-if (leadsFromLocalStorage) {
-  myLeads = leadsFromLocalStorage;
-  render(myLeads);
-}
-
-tabBtn.addEventListener("click", function () {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    console.log(tabs);
-
-    //este de aqui abajo es para guardar al momento de press el boton
-    myLeads.push(tabs[0].url);
-    localStorage.setItem("myLeads", JSON.stringify(myLeads));
-    render(myLeads);
-  });
-});
 
 function render(leads) {
   let listItems = "";
@@ -54,19 +38,24 @@ function render(leads) {
   ulEl.innerHTML = listItems;
 }
 
-//boton que aceta solo doble clicks con dblclick - es nueva esta
+onValue(referenceInDB, function (snapshot) {
+  const snapshotDoesExist = snapshot.exists();
+
+  if (snapshotDoesExist) {
+    const snapshotValues = snapshot.val();
+    const leads = Object.values(snapshotValues);
+    render(leads);
+  }
+});
+
+//boton que acepta doble click con dblclick
 deletenBtn.addEventListener("dblclick", function () {
-  localStorage.clear();
-  myLeads = [];
-  render(myLeads);
-}); //VACIA LA LISTA AL HACER DOBLE CLICK AL BOTON DE DELETE
+  remove(referenceInDB);
+  ulEl.innerHTML = " ";
+});
 
 //funcion de llamar al presionar
 inputBtn.addEventListener("click", function () {
-  myLeads.push(inputEl.value); // con el .value tenermos el dato del input
+  push(referenceInDB, inputEl.value); // lo que hacemos aqui que al presional el botn piush los datos al direbase
   inputEl.value = ""; //limpia el input al dar click
-  localStorage.setItem("myLeads", JSON.stringify(myLeads)); //al hacer click los guarda los array en el local storage
-
-  render(myLeads); //llamamos la funcion al hacer click
-  console.log(localStorage.getItem("myLeads"));
 });
